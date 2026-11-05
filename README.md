@@ -1,5 +1,20 @@
 # PlayGround
 
+## THE HOLLOW HOUR
+
+A short, first-person indie psychological horror built with Three.js. You return to apartment 4B to pack it up, but the hallway keeps changing and the dark has started remembering you.
+
+**Play:** run `./start.sh` (or serve the folder with any static server) and open the printed local URL. Click **ENTER THE APARTMENT**.
+
+- Find all five memory shards, then leave through the front door.
+- The figure cannot move while your flashlight beam holds it. Look away and it closes in.
+- Composure drains in darkness and near the figure. Lit rooms restore it. Batteries keep the beam alive.
+- No combat. No jump-scare spam. Just the rooms and what you choose to look at.
+
+**Controls:** `WASD` move · mouse look · `Shift` run · `F` flashlight · `E` interact · `Esc` pause. Click the game view to recapture the mouse.
+
+Everything is procedural — geometry, textures, audio, and post-processing — with Three.js and local fonts vendored in `vendor/`, so the game runs offline.
+
 <!-- omgithub:readme:start -->
 ## 🚀 Build, play, and remix with OMGithub
 

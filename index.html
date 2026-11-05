@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta name="theme-color" content="#050505" />
+<title>The Hollow Hour — a psychological horror</title>
+<meta name="description" content="A short first-person psychological horror. Find the five memories before the dark finds you." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23050505'/%3E%3Ccircle cx='32' cy='32' r='18' fill='%23e9dfcd'/%3E%3Ccircle cx='41' cy='25' r='17' fill='%23050505'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <canvas id="scene" aria-label="The Hollow Hour game view"></canvas>
+
+  <div id="fx-vignette" aria-hidden="true"></div>
+  <div id="fx-scan" aria-hidden="true"></div>
+
+  <!-- ══════════ LOADING ══════════ -->
+  <section id="loading" class="screen visible">
+    <div class="load-inner">
+      <div class="load-mark">◐</div>
+      <h1 class="load-title">THE HOLLOW HOUR</h1>
+      <div class="load-track"><div id="load-bar"></div></div>
+      <p id="load-status" class="load-status">Opening the apartment…</p>
+    </div>
+  </section>
+
+  <!-- ══════════ MAIN MENU ══════════ -->
+  <section id="menu" class="screen" aria-label="Main menu">
+    <div class="menu-grain" aria-hidden="true"></div>
+    <div class="menu-top">
+      <span class="eyebrow">AN INDIE PSYCHOLOGICAL HORROR</span>
+    </div>
+    <div class="menu-center">
+      <p class="menu-kicker">3:17 A.M. &nbsp;·&nbsp; APARTMENT 4B</p>
+      <h1 class="title">
+        <span class="title-the">THE</span>
+        <span class="title-main">HOLLOW<span class="title-gap"></span>HOUR</span>
+      </h1>
+      <p class="menu-tag">Some rooms remember you.</p>
+      <div class="menu-actions">
+        <button id="btn-start" class="btn btn-primary" aria-label="Play">
+          <span class="btn-ico">▸</span> ENTER THE APARTMENT
+        </button>
+        <button id="btn-help" class="btn">HOW TO PLAY</button>
+      </div>
+      <div class="menu-options">
+        <label class="opt">
+          <span>MOUSE SENSITIVITY</span>
+          <input id="opt-sens" type="range" min="0.4" max="2.4" step="0.1" value="1" />
+          <output id="opt-sens-val">1.0</output>
+        </label>
+        <label class="opt">
+          <span>VOLUME</span>
+          <input id="opt-vol" type="range" min="0" max="1" step="0.05" value="0.7" />
+          <output id="opt-vol-val">70</output>
+        </label>
+      </div>
+    </div>
+    <div class="menu-bottom">
+      <span class="pulse-dot"></span> HEADPHONES RECOMMENDED
+      <span class="menu-sep">/</span> WASD + MOUSE
+      <span class="menu-sep">/</span> <span id="menu-sound">SOUND: ON</span>
+    </div>
+  </section>
+
+  <!-- ══════════ HUD ══════════ -->
+  <div id="hud" class="hidden" aria-live="polite">
+    <div class="hud-top">
+      <div class="hud-objective">
+        <span class="hud-label">OBJECTIVE</span>
+        <span id="objective-text">Find the five memories</span>
+      </div>
+      <div class="hud-counter">
+        <span class="hud-label">MEMORIES</span>
+        <span id="memory-count">0 <i>/ 5</i></span>
+      </div>
+    </div>
+
+    <div id="location" class="location">HALLWAY</div>
+
+    <div class="crosshair" id="crosshair"><span></span></div>
+
+    <div id="prompt" class="prompt hidden"><kbd>E</kbd><span id="prompt-text">TAKE MEMORY</span></div>
+
+    <div class="hud-bottom">
+      <div class="meter">
+        <div class="meter-head"><span class="hud-label">COMPOSURE</span><span id="sanity-val">100</span></div>
+        <div class="meter-track"><div id="sanity-bar" class="meter-fill sanity"></div></div>
+      </div>
+      <div class="meter meter-right">
+        <div class="meter-head"><span class="hud-label">FLASHLIGHT <em id="flash-state">ON</em></span><span id="battery-val">100</span></div>
+        <div class="meter-track"><div id="battery-bar" class="meter-fill battery"></div></div>
+      </div>
+    </div>
+
+    <div id="subtitle" class="subtitle"></div>
+    <div id="flash-warning" class="flash-warning">THE LIGHT IS DYING</div>
+  </div>
+
+  <!-- ══════════ INTERACTION: NOTE ══════════ -->
+  <section id="note" class="screen note-screen" aria-label="Note">
+    <article class="note-paper">
+      <p id="note-text"></p>
+      <footer><span id="note-sign"></span><span class="note-close">[E] PUT IT DOWN</span></footer>
+    </article>
+  </section>
+
+  <!-- ══════════ HELP ══════════ -->
+  <section id="help" class="screen modal-screen" aria-label="How to play">
+    <div class="modal">
+      <span class="eyebrow">HOW TO PLAY</span>
+      <h2>Stay in the light.</h2>
+      <div class="help-grid">
+        <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><p>Move through the apartment</p></div>
+        <div><kbd>MOUSE</kbd><p>Look around</p></div>
+        <div><kbd>SHIFT</kbd><p>Walk faster</p></div>
+        <div><kbd>F</kbd><p>Toggle flashlight</p></div>
+        <div><kbd>E</kbd><p>Interact · read · take</p></div>
+        <div><kbd>ESC</kbd><p>Pause</p></div>
+      </div>
+      <div class="help-notes">
+        <p><b>Collect five memories.</b> Each one takes something from you.</p>
+        <p><b>Keep the light on it.</b> The figure cannot move while your beam holds it. If you look away, it comes closer.</p>
+        <p><b>Composure is life.</b> Darkness and the figure erode it. Lit rooms restore it. Find batteries when the beam weakens.</p>
+        <p class="help-warn">There is no combat. There is only what you choose to see.</p>
+      </div>
+      <button id="btn-help-close" class="btn btn-primary">UNDERSTOOD</button>
+    </div>
+  </section>
+
+  <!-- ══════════ PAUSE ══════════ -->
+  <section id="pause" class="screen modal-screen" aria-label="Paused">
+    <div class="modal modal-small">
+      <span class="eyebrow">PAUSED</span>
+      <h2>The dark waits.</h2>
+      <div class="pause-actions">
+        <button id="btn-resume" class="btn btn-primary">RESUME</button>
+        <button id="btn-pause-help" class="btn">CONTROLS</button>
+        <button id="btn-quit" class="btn">RETURN TO TITLE</button>
+      </div>
+      <p class="pause-hint">Press ESC or RESUME to continue.</p>
+    </div>
+  </section>
+
+  <!-- ══════════ DEATH ══════════ -->
+  <section id="death" class="screen end-screen" aria-label="Game over">
+    <div class="end-inner">
+      <span class="eyebrow red">COMPOSURE LOST</span>
+      <h1>YOU LET IT IN</h1>
+      <p class="end-line">“You were always the one who forgot.”</p>
+      <button id="btn-retry" class="btn btn-primary">TRY AGAIN</button>
+      <button id="btn-death-title" class="btn">RETURN TO TITLE</button>
+    </div>
+  </section>
+
+  <!-- ══════════ ENDING ══════════ -->
+  <section id="ending" class="screen end-screen ending-screen" aria-label="Ending">
+    <div class="end-inner">
+      <span class="eyebrow">DAWN</span>
+      <h1>THE LIGHT STAYS ON</h1>
+      <div class="end-copy">
+        <p>You step into the hallway and close the door behind you.</p>
+        <p>Somewhere inside, a tap is running.</p>
+        <p>You do not look back. That is how it survives.</p>
+      </div>
+      <p class="end-credit">THE HOLLOW HOUR<br><span>a game about the rooms we keep</span></p>
+      <button id="btn-ending-title" class="btn btn-primary">RETURN TO TITLE</button>
+    </div>
+  </section>
+
+  <!-- ══════════ INTRO CARD ══════════ -->
+  <div id="intro-card" class="intro-card hidden" aria-hidden="true">
+    <p class="intro-1">You came back to pack up the apartment.</p>
+    <p class="intro-2">The door at the end of the hall was not here before.</p>
+  </div>
+
+  <div id="fade" class="fade"></div>
+
+  <script type="module" src="./js/game.js"></script>
+</body>
+</html>
