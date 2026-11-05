@@ -458,6 +458,11 @@ window.addEventListener('keydown', (e) => {
   if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'Space', 'ShiftLeft', 'ShiftRight'].includes(e.code)) e.preventDefault();
   keys[e.code] = true;
 
+  if (e.code === 'Escape' && ui.help.classList.contains('visible')) {
+    closeHelp();
+    return;
+  }
+
   if (state.mode === 'playing') {
     if (e.code === 'KeyF') toggleFlashlight();
     if (e.code === 'KeyE') interact();
@@ -1050,6 +1055,13 @@ function toggleSound() {
   if (!audio.muted) audio.click();
 }
 
+function closeHelp() {
+  ui.help.classList.remove('visible');
+  if (state.helpReturn === 'paused' && state.mode === 'paused') ui.pause.classList.add('visible');
+  state.helpReturn = null;
+  audio.click();
+}
+
 ui.optSens.addEventListener('input', () => {
   player.sensitivity = parseFloat(ui.optSens.value);
   ui.optSensVal.textContent = player.sensitivity.toFixed(1);
@@ -1071,12 +1083,7 @@ $('btn-help').addEventListener('click', () => {
   ui.help.classList.add('visible');
   audio.click();
 });
-$('btn-help-close').addEventListener('click', () => {
-  ui.help.classList.remove('visible');
-  if (state.helpReturn === 'paused' && state.mode === 'paused') ui.pause.classList.add('visible');
-  state.helpReturn = null;
-  audio.click();
-});
+$('btn-help-close').addEventListener('click', closeHelp);
 $('btn-pause-help').addEventListener('click', () => {
   state.helpReturn = 'paused';
   ui.pause.classList.remove('visible');
